@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score # scolar in training, tasked with eva
 df_train = pd.read_csv('train.csv')
 df_test = pd.read_csv('test.csv')
 # construct relevant dataframes
-np.random.seed(42)
+np.random.seed(0)
 df_train = df_train.reindex(np.random.permutation(df_train.index))
 x_test = df_test.filter(regex='^x')
 
@@ -32,6 +32,7 @@ for i in range(0,k):
 
 model = multiclass.OneVsRestClassifier(SVC(gamma='auto')) # choice of good crysal is very important
 
+scores = []
 for fold in folds:
     # prepare the sacrificial input data
     df_train_copy = df_train.drop(index=fold['Id'])
@@ -45,18 +46,17 @@ for fold in folds:
 
     # Evaluation (performed by scolar)
     acc = accuracy_score(y_eval, y_pred)
+    scores.append(acc)
     print(acc)
-    
+
+mean_score = pd.Series(scores).mean()
+print('mean score =', mean_score) 
 
 ####################
 ### Magic circle ###
 ####################
 
 # predict and write to output (performed by the multiclass mage)
-y_pred = model.predict(x_train)
-#out = pd.DataFrame(y_pred, index=df_eval['Id'], columns=['y'])
-#out.to_csv('output.csv')
-
-# Evaluation (performed by scolar)
-acc = accuracy_score(y_train, y_pred)
-print(acc)
+y_pred = model.predict(x_test)
+out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
+out.to_csv('output.csv')
