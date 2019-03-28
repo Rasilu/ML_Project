@@ -2,8 +2,7 @@ import pandas as pd
 import numpy as np
 from copy import deepcopy
 # invite mages for the machine learning ritual
-from sklearn import multiclass  # Mage specialiced in divination    (based on the quality of the prediction crystal the ml ritual has created, this mage can make predictions on the classification of vectors by reading it's features)
-from sklearn.svm import SVC     # Mage specialiced in transmutation (using a kernel as his arcane focus, this mage helps the multicalss mage perform the ml ritual)
+from sklearn import neural_network  # very intelligent, powerful mage (works in mysterious ways)
 from sklearn.metrics import accuracy_score # scolar in training, tasked with evaluating the success of the rital
 
 
@@ -11,9 +10,9 @@ from sklearn.metrics import accuracy_score # scolar in training, tasked with eva
 df_train = pd.read_csv('train.csv')
 df_test = pd.read_csv('test.csv')
 # construct relevant dataframes
+x_test = df_test.filter(regex='^x')
 np.random.seed(0)
 df_train = df_train.reindex(np.random.permutation(df_train.index))
-x_test = df_test.filter(regex='^x')
 
 # create k folds for crossvalidation (and store them in a list (folds))
 k = 10                 # number of folds
@@ -30,7 +29,8 @@ for i in range(0,k):
 ### Magic circle ###    (please do not disturb mages while ritual is in progress)
 ####################
 
-model = multiclass.OneVsRestClassifier(SVC(gamma='auto')) # choice of good crysal is very important
+#TODO: choose crystal with good properies (kernel, ovo/ovr, ...)
+crystal = neural_network.MLPClassifier(max_iter=1000)
 
 scores = []
 for fold in folds:
@@ -41,8 +41,8 @@ for fold in folds:
     x_eval = fold.filter(regex='^x')
     y_eval = fold['y']
     
-    model.fit(x_train,y_train) # atune the crystal (becomes clear and spherical)
-    y_pred = model.predict(x_eval) # make a prediction using the crystal ball
+    crystal.fit(x_train,y_train) # atune the crystal (becomes clear and spherical)
+    y_pred = crystal.predict(x_eval) # make a prediction using the crystal ball
 
     # Evaluation (performed by scolar)
     acc = accuracy_score(y_eval, y_pred)
@@ -57,6 +57,6 @@ print('mean score =', mean_score)
 ####################
 
 # predict and write to output (performed by the multiclass mage)
-y_pred = model.predict(x_test)
+y_pred = crystal.predict(x_test)
 out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
 out.to_csv('output.csv')
