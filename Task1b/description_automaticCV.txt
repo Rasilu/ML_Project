@@ -1,0 +1,8 @@
+Constructing dataframe:
+From the file train.csv we get 5 different features x1 .. x5, which we put in a dataframe x. We construct a data frame for each function by applying it to x (useing lambda functions). We construct a data frame phi by concatinating all the data frames we got (x and 3 functions) plus one column containing only ones. phi now contains 21 columns for all 21 features phi1 .. phi21.
+
+Fitting the model:
+After finding out that sklearn.linear_model.Ridge would set fitintercept to True by default I got the best score by useing the RidgeCV() model with fitintercept=False (even better than cross-validating manually which was better until now (please refer to previous solution if that gives more pints)).  
+ I let it test for alphas in the range of 330 to 333, since we got the best results for values in that range so far. Sadly we did not reach the Hard baseline by a very small margin. =(
+
+To get the weights we use model.coef_.

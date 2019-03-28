@@ -1,0 +1,7 @@
+Constructing dataframe:
+From the file train.csv we get 5 different features x1 .. x5, which we put in a dataframe x. We construct a data frame for each function by applying it to x (useing lambda functions). We construct a data frame phi by concatinating all the data frames we got (x and 3 functions) plus one column containing only ones. phi now contains 21 columns for all 21 features phi1 .. phi21.
+
+Fitting the model:
+After some testing we decided that the Ridge model (sklearn.linear_model.Ridge()) gives us the bests scores so we decided to use this instead. We reuse the code from Task 1a to make a 10-fold crossvalidation for each lambda. To get a good lambda we first use a big step size (100) to iterate to ever smaller RMSEs and start making the stepsize smaller (stepsize= stepsize/2) once the RMSE is more than in the previous iteration. We then go back and forth until we get a small enough difference (dif<=eps) and use that lambda (here around 330) to calculate the weights of the model.
+
+To get the weights we use model.coef_ and replace the last element with model.intercept_ (totally overlooked that in previous submissions which gave us a worse score).
