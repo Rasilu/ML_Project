@@ -30,7 +30,7 @@ for i in range(0,k):
 ####################
 
 # choice of good crystal is very important
-crystal = neural_network.MLPClassifier(max_iter=1000) # hehe, brony
+crystal = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) # hehe, brony
 
 max_score = 0
 scores = pd.Series()
