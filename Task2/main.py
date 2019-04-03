@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-# invite mages for the machine learning ritual
-from sklearn import neural_network  # very intelligent, powerful mage (works in mysterious ways)
+from sklearn import neural_network  # powerful mage (works in mysterious ways)
 from sklearn.metrics import accuracy_score # scolar in training, tasked with evaluating the success of the rital
 
 
@@ -70,7 +69,7 @@ assert(acc == scores.max())
 ### Magic circle ###
 ####################
 
-# predict and write to output (performed by the multiclass mage)
+# predict and write to output
 y_pred = best_crystal.predict(x_test)
 out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
 out.to_csv('output.csv')
