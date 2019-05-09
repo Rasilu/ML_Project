@@ -3,6 +3,7 @@ import numpy as np
 from copy import deepcopy
 from sklearn import neural_network
 from sklearn.metrics import accuracy_score 
+import tensorflow as tf
 
 
 # read file with pandas
@@ -39,7 +40,7 @@ for i in range(0,k):
 
 print("start ritual")
 
-crystal = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) 
+model = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) 
 
 max_score = 0
 scores = pd.Series()
@@ -51,15 +52,15 @@ for i in range(k):
     x_eval = fold.filter(regex='^x')
     y_eval = fold['y']
 
-    print("tuning crystal")
-    crystal.fit(x_train,y_train) # train model
+    print("tuning model")
+    model.fit(x_train,y_train) # train model
     print("predict values")
-    y_pred = crystal.predict(x_eval) # make a prediction
+    y_pred = model.predict(x_eval) # make a prediction
 
     # Evaluation
     acc = accuracy_score(y_eval, y_pred)
     if (acc > max_score):
-        best_crystal = deepcopy(crystal)
+        best_model = deepcopy(model)
         best_fold = deepcopy(fold)
         max_score = acc
     scores.at[i] = acc
@@ -71,9 +72,9 @@ print('mean score =', mean_score)
 # choose best model
 x_eval = best_fold.filter(regex='^x')
 y_eval = best_fold['y']
-y_pred = best_crystal.predict(x_eval)
+y_pred = best_model.predict(x_eval)
 acc = accuracy_score(y_eval, y_pred)
-print("best_crystal performance =", acc)
+print("best_model performance =", acc)
 assert(acc == scores.max())
 
 ####################
@@ -81,6 +82,6 @@ assert(acc == scores.max())
 ####################
 
 # predict and write to output
-y_pred = best_crystal.predict(x_test)
+y_pred = best_model.predict(x_test)
 out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
 out.to_csv('output.csv')
