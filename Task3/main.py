@@ -1,9 +1,8 @@
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-# invite mages for the machine learning ritual
-from sklearn import neural_network  # very intelligent, powerful mage (works in mysterious ways)
-from sklearn.metrics import accuracy_score # scolar in training, tasked with evaluating the success of the rital
+from sklearn import neural_network
+from sklearn.metrics import accuracy_score 
 
 
 # read file with pandas
@@ -20,7 +19,7 @@ df_test = pd.concat([Id,test],axis=1)
 
 # construct relevant dataframes
 x_test = df_test.filter(regex='^x')
-np.random.seed(6727976) # seed determined with multiple dice to boost the RNGs affinity to luck
+np.random.seed(6727976)
 df_train = df_train.reindex(np.random.permutation(df_train.index))
 
 # create k folds for crossvalidation (and store them in a list (folds))
@@ -28,23 +27,23 @@ k = 10                 # number of folds
 count = df_train['Id'].count()     # total number of rows
 size = count // k      # size of one fold
 folds = []             # list stores a dataframe of each fold
-df_train_copy = deepcopy(df_train) # sacrificial dataframe
+df_train_copy = deepcopy(df_train)
 for i in range(0,k):
     fold = pd.DataFrame(df_train_copy.head(size))
     folds.append(fold)
     df_train_copy = df_train_copy.drop(index=df_train_copy['Id'].head(size))
 
 ####################
-### Magic circle ###    (please do not disturb mages while ritual is in progress)
+### Magic circle ###   
 ####################
+
 print("start ritual")
-# choice of good crystal is very important
-crystal = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) # hehe, brony
+
+crystal = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) 
 
 max_score = 0
 scores = pd.Series()
 for i in range(k):
-    # prepare the sacrificial input data
     fold = folds[i]
     not_fold = df_train.drop(index=fold['Id'])
     x_train = not_fold.filter(regex='^x')
@@ -53,11 +52,11 @@ for i in range(k):
     y_eval = fold['y']
 
     print("tuning crystal")
-    crystal.fit(x_train,y_train) # atune the crystal
+    crystal.fit(x_train,y_train) # train model
     print("predict values")
-    y_pred = crystal.predict(x_eval) # make a prediction using the crystal
+    y_pred = crystal.predict(x_eval) # make a prediction
 
-    # Evaluation (performed by scolar)
+    # Evaluation
     acc = accuracy_score(y_eval, y_pred)
     if (acc > max_score):
         best_crystal = deepcopy(crystal)
@@ -69,10 +68,10 @@ for i in range(k):
 mean_score = scores.mean()
 print('mean score =', mean_score) 
 
-# scolar is tasked with checking if the best crystal has been chosen
+# choose best model
 x_eval = best_fold.filter(regex='^x')
 y_eval = best_fold['y']
-y_pred = best_crystal.predict(x_eval) # make a prediction using the crystal
+y_pred = best_crystal.predict(x_eval)
 acc = accuracy_score(y_eval, y_pred)
 print("best_crystal performance =", acc)
 assert(acc == scores.max())
@@ -81,7 +80,7 @@ assert(acc == scores.max())
 ### Magic circle ###
 ####################
 
-# predict and write to output (performed by the multiclass mage)
+# predict and write to output
 y_pred = best_crystal.predict(x_test)
 out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
 out.to_csv('output.csv')
