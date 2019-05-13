@@ -29,8 +29,8 @@ for i in range(0,k):
 ### Magic circle ###    (please do not disturb mages while ritual is in progress)
 ####################
 
-# choice of good crystal is very important
-crystal = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) # hehe, brony
+# choice of good model is very important
+model = neural_network.MLPClassifier(max_iter=1000, hidden_layer_sizes=400) # hehe, brony
 
 max_score = 0
 scores = pd.Series()
@@ -43,13 +43,13 @@ for i in range(k):
     x_eval = fold.filter(regex='^x')
     y_eval = fold['y']
 
-    crystal.fit(x_train,y_train) # atune the crystal
-    y_pred = crystal.predict(x_eval) # make a prediction using the crystal
+    model.fit(x_train,y_train) # atune the model
+    y_pred = model.predict(x_eval) # make a prediction using the model
 
     # Evaluation (performed by scolar)
     acc = accuracy_score(y_eval, y_pred)
     if (acc > max_score):
-        best_crystal = deepcopy(crystal)
+        best_model = deepcopy(model)
         best_fold = deepcopy(fold)
         max_score = acc
     scores.at[i] = acc
@@ -58,12 +58,12 @@ for i in range(k):
 mean_score = scores.mean()
 print('mean score =', mean_score) 
 
-# scolar is tasked with checking if the best crystal has been chosen
+# scolar is tasked with checking if the best model has been chosen
 x_eval = best_fold.filter(regex='^x')
 y_eval = best_fold['y']
-y_pred = best_crystal.predict(x_eval) # make a prediction using the crystal
+y_pred = best_model.predict(x_eval) # make a prediction using the model
 acc = accuracy_score(y_eval, y_pred)
-print("best_crystal performance =", acc)
+print("best_model performance =", acc)
 assert(acc == scores.max())
 
 ####################
@@ -71,6 +71,6 @@ assert(acc == scores.max())
 ####################
 
 # predict and write to output (performed by the multiclass mage)
-y_pred = best_crystal.predict(x_test)
+y_pred = best_model.predict(x_test)
 out = pd.DataFrame(y_pred, index=df_test['Id'], columns=['y'])
 out.to_csv('output.csv')
