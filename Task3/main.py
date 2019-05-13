@@ -8,7 +8,6 @@ from sklearn.metrics import accuracy_score
 # read file with pandas
 train = pd.read_hdf("train.h5", "train")
 test = pd.read_hdf("test.h5", "test")
-print(train)
 
 count = train['x1'].count()
 Id = pd.Series(range(count), name='Id')
