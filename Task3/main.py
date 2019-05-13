@@ -1,25 +1,40 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from tensorflow.keras import layers
+from sklearn.metrics import accuracy_score
 
-# disclaimer: did not manage to get deterministic training results, even when setting a seed
+np.random.seed(2161439)
+tf.random.set_random_seed(105338)
+# disclaimer: did not manage to get deterministic training results, even when setting a seed (still statistical consistency)
 
 # read file with pandas
 train = pd.read_hdf("train.h5", "train")
-test = pd.read_hdf("test.h5", "test")
+x_test = pd.read_hdf("test.h5", "test")
+x_test.index.name = 'Id'
 
-x_train = train.filter(regex='^x').values
-y_train = train['y'].values
+count=train['y'].count()
+print('shuffling')
+for i in range(10):
+    train = train.sample(frac=1) #shuffle rows
+val_size=5324
+val = train.head(val_size)
+print(train['y'].count())
+train = train.tail(count-val_size)
+print(train['y'].count())
+x_val = val.filter(regex='^x').values
+y_val = val['y'].values
 
 #############
 ### MODEL ###
 #############
 
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(120, activation=tf.nn.relu),
-    tf.keras.layers.Dense(5, activation=tf.nn.softmax)
-])
+layers = [120]
+print('layers=',layers)
+for i in range(len(layers)):
+    layers[i] = tf.keras.layers.Dense(layers[i], activation=tf.nn.relu)
+layers.append(tf.keras.layers.Dense(5, activation=tf.nn.softmax))
+
+model = tf.keras.Sequential(layers)
 
 model.compile(optimizer='adam', 
               loss='sparse_categorical_crossentropy',
@@ -29,11 +44,41 @@ model.compile(optimizer='adam',
 ### MODEL ###
 #############
 
-model.fit(x_train, y_train, epochs=1)
-predictions = model.predict(x_train)
+rounds=5
+epochs=20
+count=train['y'].count()
+print(count)
+size=count//rounds
+print(size)
+max_score = 0
+best_epoch = 0
+best_round = 0
+for round in range(rounds):
+    print('round', round+1)
+    
+    training_set = train.head(size)
+    train.drop(size)
+    x_train = training_set.filter(regex='^x').values
+    y_train = training_set['y'].values
 
-y_pred = []
-for i in range(len(predictions)):
-    predictions[i] = np.argmax(predictions[i])
-out = pd.DataFrame(y_pred, index=test.index, columns=['y'])
-out.to_csv('output.csv')
+    for epoch in range(epochs):
+        model.fit(x_train, y_train, epochs=1)
+        y_pred = model.predict(x_val)
+        predictions = []
+        for i in range(len(y_pred)):
+            predictions.append(np.argmax(y_pred[i]))
+        acc = accuracy_score(y_val, predictions)
+        if (acc > max_score):
+            # write prediction of current best model to output
+            y_pred = model.predict(x_test)
+            predictions = []
+            for i in range(len(y_pred)):
+                predictions.append(np.argmax(y_pred[i]))
+            out = pd.DataFrame(predictions, index=x_test.index, columns=['y'])
+            out.to_csv('output.csv')
+
+            max_score = acc
+            best_epoch = epoch+1
+            best_round = round+1
+
+    print('round', round, 'summary:', 'best accuracy so far is' ,max_score,'in epoch', best_epoch, 'from round', best_round)
