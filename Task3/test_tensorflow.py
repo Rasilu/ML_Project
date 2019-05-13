@@ -3,8 +3,7 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras import layers
 
-tf.random.set_random_seed(42)
-
+# disclaimer: did not manage to get deterministic training results, even when setting a seed
 
 # read file with pandas
 train = pd.read_hdf("train.h5", "train")
@@ -32,6 +31,7 @@ model.compile(optimizer='adam',
 
 model.fit(x_train, y_train, epochs=1)
 predictions = model.predict(x_train)
+
 y_pred = []
 for i in range(len(predictions)):
     predictions[i] = np.argmax(predictions[i])
