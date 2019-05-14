@@ -18,10 +18,9 @@ for i in range(10):
     train = train.sample(frac=1) #shuffle rows
 val_size=5324
 val = train.head(val_size)
-print(train['y'].count())
 train = train.tail(count-val_size)
 training_set = train.copy()
-print(train['y'].count())
+ind = pd.Series(training_set.index.values)
 x_val = val.filter(regex='^x').values
 y_val = val['y'].values
 
@@ -46,7 +45,7 @@ model.compile(optimizer='adam',
 #############
 
 rounds=4
-epochs=20
+epochs=5
 count=train['y'].count()
 size=count//rounds
 max_score = 0
@@ -54,10 +53,10 @@ best_epoch = 0
 best_round = 0
 for round in range(rounds):
     print('round', round+1)
-    
-    training_set = train.head(size)
-    count=train['y'].count()
-    train = train.tail(count-size)
+    train = training_set.drop(ind.head(size))
+    count = count-size
+    ind = ind.tail(count)
+    print(train['y'].count())
     x_train = training_set.filter(regex='^x').values
     y_train = training_set['y'].values
 
