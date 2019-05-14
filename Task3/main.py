@@ -28,7 +28,7 @@ y_val = val['y'].values
 ### MODEL ###
 #############
 
-layers = [120,500,500]
+layers = [120,500,500] # add relu layers
 print('layers=',layers)
 for i in range(len(layers)):
     layers[i] = tf.keras.layers.Dense(layers[i], activation=tf.nn.relu)
@@ -44,7 +44,7 @@ model.compile(optimizer='adam',
 ### MODEL ###
 #############
 
-rounds=4
+rounds=20   # rounds = amount of folds we want in the k-fold validation
 epochs=5
 count=train['y'].count()
 size=count//rounds
@@ -56,9 +56,8 @@ for round in range(rounds):
     train = training_set.drop(ind.head(size))
     count = count-size
     ind = ind.tail(count)
-    print(train['y'].count())
-    x_train = training_set.filter(regex='^x').values
-    y_train = training_set['y'].values
+    x_train = train.filter(regex='^x').values
+    y_train = train['y'].values
 
     for epoch in range(epochs):
         model.fit(x_train, y_train, epochs=1)
