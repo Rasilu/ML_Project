@@ -20,6 +20,7 @@ val_size=5324
 val = train.head(val_size)
 print(train['y'].count())
 train = train.tail(count-val_size)
+training_set = train.copy()
 print(train['y'].count())
 x_val = val.filter(regex='^x').values
 y_val = val['y'].values
@@ -28,7 +29,7 @@ y_val = val['y'].values
 ### MODEL ###
 #############
 
-layers = [120]
+layers = [120,500,500]
 print('layers=',layers)
 for i in range(len(layers)):
     layers[i] = tf.keras.layers.Dense(layers[i], activation=tf.nn.relu)
@@ -44,12 +45,10 @@ model.compile(optimizer='adam',
 ### MODEL ###
 #############
 
-rounds=5
+rounds=4
 epochs=20
 count=train['y'].count()
-print(count)
 size=count//rounds
-print(size)
 max_score = 0
 best_epoch = 0
 best_round = 0
@@ -57,7 +56,8 @@ for round in range(rounds):
     print('round', round+1)
     
     training_set = train.head(size)
-    train.drop(size)
+    count=train['y'].count()
+    train = train.tail(count-size)
     x_train = training_set.filter(regex='^x').values
     y_train = training_set['y'].values
 
@@ -81,4 +81,4 @@ for round in range(rounds):
             best_epoch = epoch+1
             best_round = round+1
 
-    print('round', round, 'summary:', 'best accuracy so far is' ,max_score,'in epoch', best_epoch, 'from round', best_round)
+    print('round', round+1, 'summary:', 'best accuracy so far is' ,max_score,'in epoch', best_epoch, 'from round', best_round)
