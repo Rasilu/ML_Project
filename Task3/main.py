@@ -28,7 +28,7 @@ y_val = val['y'].values
 ### MODEL ###
 #############
 
-layers = [120,500,500] # add relu layers
+layers = [120] # add relu layers
 print('layers=',layers)
 for i in range(len(layers)):
     layers[i] = tf.keras.layers.Dense(layers[i], activation=tf.nn.relu)
